@@ -3,27 +3,9 @@
 <textarea id="textarea" rows="2" cols"3"></textarea>
 
 <script type="text/javascript"> 
-  addEventListener("keydown", function(event) {
-    if (event.keyCode == 39){  //right 
-      grid.setPosition(1, 0);
-      console.log("right");
-    }
-    if (event.keyCode == 37){  //left 
-      grid.setPosition(-1, 0);
-      console.log("left");
-    }
-    if (event.keyCode == 38){ //up
-      grid.setPosition(0,-1);
-      console.log("up");
-    }
-    if (event.keyCode == 40){ //down
-      grid.setPosition(0,1);
-      console.log("down");
-    }
-    //printMatrix();
-    update();
-  });
 
+  var currKey = ' ';
+  
   var grid = {
     currX: 0,
     currY: 0,
@@ -39,9 +21,27 @@
         //console.log('setting new position' + ' ' + grid.currX + ' ' + grid.currY);
         grid.matrix[grid.currY][grid.currX] = "x";
       } 
-    }
+    } //TODO remove this once you copy it over to makeDecision function 
   }
+  
+  function enemy(health, weapon, baseDamage) {
+    this.health = health;
+    this.weapon = weapon;
+    this.baseDamage = baseDamage;
+    this.currAction = '';
+  }
+  
+  function user(health, weapon, baseDamage) {
+    this.health = health;
+    this.weapon = weapon;
+    this.baseDamage = baseDamage;
+    this.currAction = '';
+  }
+  var avatar = new user(10, 'sword', 1);
+  var enemyPosition = [new enemy(10, 'sword', 1), , ];
+  var userPosition = [ , avatar, ];
 
+  //creates an array that is 2 rows and 3 columns
   function initMatrix() {
     var a = [];
     for(var y = 0; y < 2; y++) {
@@ -53,6 +53,7 @@
     return a; 
   }
 
+  //debug method that logs the 2d array in console
   function printMatrix() {
     for (var y = 0; y < 2; y++) {
       for (var x = 0; x < 3; x++)  {
@@ -60,8 +61,9 @@
       }
     }
   }
-
-  function update() {
+  
+  //updates the browser
+  function draw() {
     var str1 = "";
     var str2 = ""; 
     printMatrix();
@@ -74,7 +76,48 @@
     document.getElementById("textarea").innerHTML = str1 + "\n" + str2;
   }
   
+  function setCurrKey(newKey) {
+    currKey = newKey; 
+  }
   
+   //TODO later replace the delayMillis with time marker length
+  function update() {  
+    var delayMillis = 3000; //3 seconds
+    if(currKey == ' ') {
+      //TODO also double check if null is right 
+    }
+    else if (currKey == 39){  //right 
+      grid.setPosition(1, 0);
+      console.log("right");
+    }
+    else if (currKey == 37){  //left 
+      grid.setPosition(-1, 0);
+      console.log("left");
+    }
+    else if (currKey == 38){ //up
+      grid.setPosition(0,-1);
+      console.log("up");
+    }
+    else if (currKey == 40){ //down
+      grid.setPosition(0,1);
+      console.log("down");
+    }
+    setCurrKey(' '); 
+    draw(); 
+    
+    setTimeout(function() {
+      update() 
+    }, delayMillis) 
+  } 
+  
+  //initializes everything 
+  update();
+
+  addEventListener("keydown", function(event) {
+    setCurrKey(event.keyCode); 
+    console.log(currKey);
+  });
+
 </script>
 
 
