@@ -6,16 +6,14 @@
 
   var playerID = 0;
   var numRows = 4;
-  var numCols = 4;
-  var xBound = numCols - 1; //number of columns - 1
-  var yBound = numRows - 1; //number of rows - 1
+  var numCols = 4; 
   var playerArr = [];
   var entityArr = [];
   //TODO init playerarr (add players) and 
 
   var grid = { 
     matrix: initMatrix(), 
-    updateGrid: function(x, y) { //TODO decide whether or not to add string parameter for specific object representation on grid
+    updateGrid: function() { //TODO decide whether or not to add string parameter for specific object representation on grid
       grid.matrix = initMatrix();
       for (var i = 0; i < playerArr.length; i++)  { // go through player array and place players in their spot
         grid.matrix[playerArr[i].currY][playerArr[i].currX] = "x";  
@@ -25,12 +23,17 @@
   }
   
   function Player(id) {
+    this.xMin = 0;
+    this.yMin = 0;
+    this.xMax = numCols - 1; //number of columns - 1
+    this.yMax = numRows - 1; //number of rows - 1
     this.id = id; 
     this.currKey = '';
     this.currX = 0;
     this.currY = 0;
+    
     this.setPosition = function(x, y) { 
-      if (this.currX + x >= 0 && this.currX + x <= xBound  && this.currY + y >=0 && this.currY + y <= yBound) {
+      if (this.currX + x >= 0 && this.currX + x <= this.xMax  && this.currY + y >=0 && this.currY + y <= this.yMax) {
         this.currX = this.currX + x;
         this.currY = this.currY + y;
       }
@@ -57,7 +60,7 @@
     return a; 
   }
 
-  //updates the browser
+  //updates the browser's element with string representation of grid.
   function draw() { //TODO fix this shitty code
     var str1 = "";
     var str2 = ""; 
@@ -72,7 +75,9 @@
     }
     document.getElementById("textarea").innerHTML = str1 + "\n" + str2 + "\n" + str3 + "\n" + str4;
   } 
-  
+ 
+  //processes each player's action every 3 seconds and updates grid and the 
+  //browser
   //TODO implement delayMillis with time marker length
   function update() {  
     var delayMillis = 3000; //3 seconds
