@@ -24,25 +24,44 @@ var numCols = 4;
 var numPlayers = 0;
 function newConnection(socket) {
   console.log('new connection: ' + socket.id);
-  if (numPlayers < 2){ 
+  if (numPlayers < 2){  //TODO implement bounds
     socketArr.push(socket);
     socketArr[numPlayers].emit('init', numPlayers);
-    playerArr.push(new Player(numPlayers));
+    playerArr.push(new Player(numPlayers, numPlayers*2, numPlayers*2 + 1, numPlayers * 3, numPlayers * 3)); //sketchy math 
+    //0th player will have yBounds from 0 to 1 and 1th player will have 2 to 3
     numPlayers++;
   }  
 
+  //TODO implement removeplayer when player leaves.. also implement queue system
+  //game rooms for multiple games at the same time
 
-
-
-  //TODO implement addplayer when player enters and removeplayer when player leaves
-
-  socket.on('keypress', keypressMsg );
+  socket.on('keypress', keypressMsg ); 
   function keypressMsg(data) {
     console.log(data);
-    playerArr[data.id].setCurrKey(data.currentKey);
-    //TODO need player data to put in player new position
+    playerArr[data.id].setCurrKey(data.currentKey); 
   }
 
+}
+
+function Player(id, yMinBound, yMaxBound, x, y) {
+  this.xMin = 0;
+  this.yMin = yMinBound;
+  this.xMax = numCols - 1; //number of columns - 1
+  this.yMax = yMaxBound; //number of rows - 1
+  this.id = id; 
+  this.currKey = '';
+  this.currX = x;
+  this.currY = y;
+  this.setPosition = function(x, y) { 
+    if (this.currX + x >= this.xMin && this.currX + x <= this.xMax  && this.currY + y >= this.yMin
+      && this.currY + y <= this.yMax) {
+      this.currX = this.currX + x;
+      this.currY = this.currY + y;
+    }
+  }
+  this.setCurrKey = function(newKey) {
+    this.currKey = newKey; 
+  }
 }
 
 var grid = { 
@@ -70,32 +89,12 @@ function initMatrix() {
   return a; 
 }
 
-function Player(id) {
-  this.xMin = 0;
-  this.yMin = 0;
-  this.xMax = numCols - 1; //number of columns - 1
-  this.yMax = numRows - 1; //number of rows - 1
-  this.id = id; 
-  this.currKey = '';
-  this.currX = 0;
-  this.currY = 0;
-  this.setPosition = function(x, y) { 
-    if (this.currX + x >= 0 && this.currX + x <= this.xMax  && this.currY + y >=0
-      && this.currY + y <= this.yMax) {
-      this.currX = this.currX + x;
-      this.currY = this.currY + y;
-    }
-  }
-  this.setCurrKey = function(newKey) {
-    this.currKey = newKey; 
-  }
-} 
 
 //processes each player's action every 3 seconds and updates grid and the 
 //browser
 //TODO implement delayMillis with time marker length
 function update() {  
-  var delayMillis = 3000; //3 seconds
+  var delayMillis = 200; //.5 seconds
   for(var i = 0; i < playerArr.length; i++) {
     if (playerArr[i].currKey == 39){  //right 
       playerArr[i].setPosition(1, 0); 
@@ -109,10 +108,14 @@ function update() {
     else if (playerArr[i].currKey == 40){ //down
       playerArr[i].setPosition(0,1); 
     }
+    else if (playerArr[i].currKey == '  ') {
+      //TODO implement basic attack 
+    }
+
     playerArr[i].setCurrKey(' ');  
   }
   grid.updateGrid(); 
-  io.sockets.emit('update', grid); 
+  io.sockets.emit('update', grid);  
   setTimeout(function() {
     update() 
   }, delayMillis) 

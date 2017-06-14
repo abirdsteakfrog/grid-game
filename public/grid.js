@@ -29,7 +29,6 @@ function draw(grid) {
   document.getElementById("textarea").innerHTML = str1 + "\n" + str2 + "\n" +
     str3 + "\n" + str4;
 } 
-//TODO draw whenever server sends a new gamestate!
 
 addEventListener("keydown", function(event) {
   currKey = event.keyCode;
